@@ -114,11 +114,11 @@ Iterating over every minute between the first and last timestamp of the input fi
 
 ### 5.2. Queue Algorithm
 
-The Queue algorithm uses two queues to store the timestamps and the durations of the events. The queues are implemented with Python lists.
+The Queue algorithm uses a queue to store the events in the window. The queues are implemented with Python lists.
 
-The algorithm iterates over every minute, if in that minute a new event is seen (_i.e._, has a `delta > 0`, where delta is the time difference between the current minute and the event's timestamp) the values are added to the queue.
+The algorithm iterates over every minute, if in that minute a new event is seen (_i.e._, has a `delta > 0`, where delta is the time difference between the current minute and the event's timestamp) the event is added to the queue.
 
-In every minute the algorithm checks if the elements in the front of the queue are older than the window size. If they are, the values are removed from both queues. The moving average in each minute is calculated by summing the values in the queue and dividing by the number of elements in the queue.
+In every minute the algorithm checks if the elements in the front of the queue are older than the window size. If they are, the event is removed from the queue. The moving average in each minute is calculated by summing the values in the queue and dividing by the number of elements in the queue.
 
 **Time complexity**: O(T\*2*M), where T is the number of minutes between the first and last event and M is the average number of events per minute.
 
