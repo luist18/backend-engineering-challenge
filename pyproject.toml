@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "unbabel-backend-challenge"
+version = "0.1.0"
+description = "Unbabel backend challenge"
+authors = ["Luís Tavares <luistavares10@outlook.pt>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pytest = "^7.4.0"
+pytest-cov = "^4.1.0"
+
+[tool.black]
+line-length = 119
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+    "integration",
+]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

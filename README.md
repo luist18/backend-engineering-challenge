@@ -1,86 +1,136 @@
-# Backend Engineering Challenge
+# unbabel-backend-challenge<!-- omit in toc -->
+
+![https://img.shields.io/badge/License-MIT-blue](https://img.shields.io/badge/License-MIT-blue)
+
+Unbabel backend challenge part of the recruitment process.
+
+## Table of Contents<!-- omit in toc -->
+
+- [1. Challenge Scenario](#1-challenge-scenario)
+- [2. Installation](#2-installation)
+- [3. How to Run](#3-how-to-run)
+- [4. How to Test](#4-how-to-test)
+- [5. Algorithms](#5-algorithms)
+  - [5.1. Hash Map Algorithm](#51-hash-map-algorithm)
+  - [5.2. Queue Algorithm](#52-queue-algorithm)
+  - [5.3. Future Improvements](#53-future-improvements)
+- [6. License](#6-license)
 
 
-Welcome to our Engineering Challenge repository 🖖
+## 1. Challenge Scenario
 
-If you found this repository it probably means that you are participating in our recruitment process. Thank you for your time and energy. If that's not the case please take a look at our [openings](https://unbabel.com/careers/) and apply!
+The challenge consists of implementing a moving average algorithm that calculates, for every minute, the average delivery time of translations, considering translations submitted in the last X minutes (being X a configurable parameter).
 
-Please fork this repo before you start working on the challenge, read it careful and take your time and think about the solution. Also, please fork this repository because we will evaluate the code on the fork.
+For a detailed description of the challenge scenario, please refer to the [GitHub repository of the challenge](https://github.com/Unbabel/backend-engineering-challenge).
 
-This is an opportunity for us both to work together and get to know each other in a more technical way. If you have any questions please open and issue and we'll reach out to help.
+## 2. Installation
 
-Good luck!
+This project is built with [poetry](https://python-poetry.org/). If you don't have poetry installed, please follow the [installation instructions](https://python-poetry.org/docs/#installation).
 
-## Challenge Scenario
+To install the project dependencies, run the following command:
 
-At Unbabel we deal with a lot of translation data. One of the metrics we use for our clients' SLAs is the delivery time of a translation. 
+```bash
+poetry install
+```
 
-In the context of this problem, and to keep things simple, our translation flow is going to be modeled as only one event.
+To activate the virtual environment, run the following command:
 
-### *translation_delivered*
+```bash
+poetry shell
+```
 
-Example:
+## 3. How to Run
+
+To run the project, run the `unbabel_cli` module with the following command:
+
+```bash
+python -m unbabel_cli <arguments>
+```
+
+The arguments are the following:
+
+- `--input_file` **(required)**: Path to the input file.
+- `--window_size` **(required)**: Window size. Must be zero or a positive integer.
+- `--algorithm` **(optional)**: Algorithm to use. Must be one of `hash_map` or `queue`. Defaults to `hash_map`.
+
+The output is printed to the standard output. To redirect it to a file, use the following command:
+
+```bash
+python -m unbabel_cli <arguments> > output_file
+```
+
+## 4. How to Test
+
+The project uses [pytest](https://docs.pytest.org/en/stable/) for testing. To run the tests, run the following command:
+
+```bash
+pytest
+```
+
+or the following command to run the tests with coverage:
+
+```bash
+pytest --cov
+```
+
+Alternatively, you can run `pytest` with `poetry` with the following command:
+
+```bash
+poetry run pytest
+```
+
+## 5. Algorithms
+
+This section describes the algorithms used to solve the challenge. The algorithms are implemented in the `unbabel_cli.algorithms` module.
+
+### 5.1. Hash Map Algorithm
+
+The Hash Map algorithm uses a hash map to store the timestamps where the duration of an event is added or removed to the total duration of the window. The hash map is implemented with a Python dictionary.
+
+For instance, consider the following entry. The following minute to the event's minute is the first minute where the duration is going to be considered in the window (if the window is different from 0). So, we can set a value in the hash map with the POSIX timestamp of the date `2016-12-26 18:12` (the following minute) with a value of `[20]` (which is the duration). We also know that the value has to be removed once the window is over. So, we can set the value in the hash map with the POSIX timestamp of the date `2016-12-26 18:12 + window size` with a value of `[-20]` (which is the negative duration).
 
 ```json
 {
-	"timestamp": "2018-12-26 18:12:19.903159",
-	"translation_id": "5aa5b2f39f7254a75aa4",
-	"source_language": "en",
-	"target_language": "fr",
-	"client_name": "airliberty",
-	"event_name": "translation_delivered",
-	"duration": 20,
-	"nr_words": 100
+  "timestamp": "2016-12-26 18:11:08.509654",
+  "translation_id": "5aa5b2f39f7254a75aa5",
+  "source_language": "en",
+  "target_language": "fr",
+  "client_name": "airliberty",
+  "event_name": "translation_delivered",
+  "nr_words": 30,
+  "duration": 20
 }
 ```
 
-## Challenge Objective
+Iterating over every minute between the first and last timestamp of the input file, we can calculate the average duration of the window by summing the values of the hash map for each minute whenever an event occurs in that timestamp.
 
-Your mission is to build a simple command line application that parses a stream of events and produces an aggregated output. In this case, we're interested in calculating, for every minute, a moving average of the translation delivery time for the last X minutes.
+**Time complexity**: O(T*M+E), where T is the number of minutes between the first and last event, M is the average number of events per minute and E is the number of events.
 
-If we want to count, for each minute, the moving average delivery time of all translations for the past 10 minutes we would call your application like (feel free to name it anything you like!).
+**Space complexity**: O(E), where E is the number of minutes between the first and last event.
 
-	unbabel_cli --input_file events.json --window_size 10
-	
-The input file format would be something like:
+**Pros**: this algorithm does not require the events to be sorted by timestamp, yet it requires to know the first timestamp.
 
-	{"timestamp": "2018-12-26 18:11:08.509654","translation_id": "5aa5b2f39f7254a75aa5","source_language": "en","target_language": "fr","client_name": "airliberty","event_name": "translation_delivered","nr_words": 30, "duration": 20}
-	{"timestamp": "2018-12-26 18:15:19.903159","translation_id": "5aa5b2f39f7254a75aa4","source_language": "en","target_language": "fr","client_name": "airliberty","event_name": "translation_delivered","nr_words": 30, "duration": 31}
-	{"timestamp": "2018-12-26 18:23:19.903159","translation_id": "5aa5b2f39f7254a75bb3","source_language": "en","target_language": "fr","client_name": "taxi-eats","event_name": "translation_delivered","nr_words": 100, "duration": 54}
 
-Assume that the lines in the input are ordered by the `timestamp` key, from lower (oldest) to higher values, just like in the example input above.
+### 5.2. Queue Algorithm
 
-The output file would be something in the following format.
+The Queue algorithm uses two queues to store the timestamps and the durations of the events. The queues are implemented with Python lists.
 
-```
-{"date": "2018-12-26 18:11:00", "average_delivery_time": 0}
-{"date": "2018-12-26 18:12:00", "average_delivery_time": 20}
-{"date": "2018-12-26 18:13:00", "average_delivery_time": 20}
-{"date": "2018-12-26 18:14:00", "average_delivery_time": 20}
-{"date": "2018-12-26 18:15:00", "average_delivery_time": 20}
-{"date": "2018-12-26 18:16:00", "average_delivery_time": 25.5}
-{"date": "2018-12-26 18:17:00", "average_delivery_time": 25.5}
-{"date": "2018-12-26 18:18:00", "average_delivery_time": 25.5}
-{"date": "2018-12-26 18:19:00", "average_delivery_time": 25.5}
-{"date": "2018-12-26 18:20:00", "average_delivery_time": 25.5}
-{"date": "2018-12-26 18:21:00", "average_delivery_time": 25.5}
-{"date": "2018-12-26 18:22:00", "average_delivery_time": 31}
-{"date": "2018-12-26 18:23:00", "average_delivery_time": 31}
-{"date": "2018-12-26 18:24:00", "average_delivery_time": 42.5}
-```
+The algorithm iterates over every minute, if in that minute a new event is seen (_i.e._, has a `delta > 0`, where delta is the time difference between the current minute and the event's timestamp) the values are added to the queue.
 
-#### Notes
+In every minute the algorithm checks if the elements in the front of the queue are older than the window size. If they are, the values are removed from both queues. The moving average in each minute is calculated by summing the values in the queue and dividing by the number of elements in the queue.
 
-Before jumping right into implementation we advise you to think about the solution first. We will evaluate, not only if your solution works but also the following aspects:
+**Time complexity**: O(T*2*M), where T is the number of minutes between the first and last event and M is the average number of events per minute.
 
-+ Simple and easy to read code. Remember that [simple is not easy](https://www.infoq.com/presentations/Simple-Made-Easy)
-+ Comment your code. The easier it is to understand the complex parts, the faster and more positive the feedback will be
-+ Consider the optimizations you can do, given the order of the input lines
-+ Include a README.md that briefly describes how to build and run your code, as well as how to **test it**
-+ Be consistent in your code. 
+**Space complexity**: O(W), where W is the average number of events in the window.
 
-Feel free to, in your solution, include some your considerations while doing this challenge. We want you to solve this challenge in the language you feel most comfortable with. Our machines run Python (3.7.x or higher) or Go (1.16.x or higher). If you are thinking of using any other programming language please reach out to us first 🙏.
+**Cons**: this algorithm requires events to be sorted by timestamp.
 
-Also, if you have any problem please **open an issue**. 
+### 5.3. Future Improvements
 
-Good luck and may the force be with you
+- Add validation to input event objects.
+- Verify if the events are sorted by timestamp if the algorithm requires.
+- Explore other data structures to improve the time and space complexity of the algorithms.
+
+## 6. License
+
+[MIT](https://opensource.org/licenses/MIT)
