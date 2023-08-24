@@ -82,10 +82,11 @@ class QueueMovingAverageAlgorithm(MovingAverageAlgorithm):
                 # Remove the first element from the queue which is O(1)
                 events.pop(0)
 
-                self.queue_events.append(event)
+                if event_delta_minutes > 0 and event_delta_minutes <= window:
+                    self.queue_events.append(event)
 
-                total += duration
-                total_number += 1
+                    total += duration
+                    total_number += 1
 
                 # We need to check if the next element is in the same minute.
                 # If it is then skip the next steps (average and append) and
