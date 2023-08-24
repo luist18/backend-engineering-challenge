@@ -1,5 +1,6 @@
 # unbabel-backend-challenge<!-- omit in toc -->
 
+![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/luist18/backend-engineering-challenge/python-package.yml?logo=github&label=tests)
 ![https://img.shields.io/badge/License-MIT-blue](https://img.shields.io/badge/License-MIT-blue)
 
 Unbabel backend challenge part of the recruitment process.
