@@ -120,7 +120,7 @@ The algorithm iterates over every minute, if in that minute a new event is seen 
 
 In every minute the algorithm checks if the elements in the front of the queue are older than the window size. If they are, the values are removed from both queues. The moving average in each minute is calculated by summing the values in the queue and dividing by the number of elements in the queue.
 
-**Time complexity**: O(T*2*M), where T is the number of minutes between the first and last event and M is the average number of events per minute.
+**Time complexity**: O(T\*2*M), where T is the number of minutes between the first and last event and M is the average number of events per minute.
 
 **Space complexity**: O(W), where W is the average number of events in the window.
 
